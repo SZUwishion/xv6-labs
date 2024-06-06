@@ -1,0 +1,37 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "debug xv6",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "~/xv6-labs-2020/kernel/kernel",
+            "args": [],
+            "stopAtEntry": true,
+            "cwd": "~/xv6-labs-2020",
+            "miDebuggerServerAddress": "localhost:26000",
+            //看你喜欢可以修改成什么能用的gdb，为了防止奇怪现象我选择了rv
+            "miDebuggerPath": "/usr/local/bin/riscv64-unknown-elf-gdb",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "preLaunchTask": "xv6build",
+            "setupCommands": [
+                {
+                    "description": "pretty printing",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true,
+                },
+                //在这里加载了寄存器信息表
+                {
+                    "text": "set tdesc filename myxml.xml",
+                }
+            ],
+            //用于gdb调试的工具，可以发现gdb出错的原因
+            // "logging": {
+            //     "engineLogging": true,
+            //     "programOutput": true,
+            // }
+        }
+    ]
+}
