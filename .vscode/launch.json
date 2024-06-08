@@ -1,3 +1,4 @@
+//launch.json
 {
     "version": "0.2.0",
     "configurations": [
@@ -5,13 +6,14 @@
             "name": "debug xv6",
             "type": "cppdbg",
             "request": "launch",
-            "program": "~/xv6-labs-2020/kernel/kernel",
+            "program": "${workspaceFolder}/kernel/kernel",
             "args": [],
             "stopAtEntry": true,
-            "cwd": "~/xv6-labs-2020",
-            "miDebuggerServerAddress": "localhost:26000",
-            //看你喜欢可以修改成什么能用的gdb，为了防止奇怪现象我选择了rv
-            "miDebuggerPath": "/usr/local/bin/riscv64-unknown-elf-gdb",
+            "cwd": "${workspaceFolder}",
+            "miDebuggerServerAddress": "127.0.0.1:26000",
+            //这里实际上可以用各种能调试的gdb，如果找不到你可以使用which gdb-multiarch
+            //但要注意的是，为了能在ubuntu20.04调出寄存器，强烈建议使用riscv64的gdb
+            "miDebuggerPath": "/usr/bin/gdb-multiarch",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
