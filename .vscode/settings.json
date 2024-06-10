@@ -1,0 +1,13 @@
+{
+    "clangd.arguments": [
+        "--enable-config"
+    ],
+    "clangd.fallbackFlags": [
+        "-I/home/wishion/xv6-labs-2020",
+        "-I/home/wishion/xv6-labs-2020/kernel",
+        "-I/home/wishion/xv6-labs-2020/user"
+    ]
+    
+    
+    
+}
