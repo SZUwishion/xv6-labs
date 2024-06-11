@@ -70,8 +70,10 @@ usertrap(void)
   } else if(r_scause() == 15 || r_scause() == 13) {
     uint64 va = r_stval();
     uint64* pa;
-
-    if((pa = kalloc()) != 0 && va < p->sz && va >= PGROUNDUP(p->trapframe->sp)) {
+    
+    if(va >= p->sz || va < PGROUNDUP(p->trapframe->sp)) {
+      p->killed = 1;
+    } else if((pa = kalloc()) != 0) {
       memset(pa, 0, PGSIZE);
       va = PGROUNDDOWN(va);
 
