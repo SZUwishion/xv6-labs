@@ -30,7 +30,18 @@ barrier()
   // Block until all threads have called barrier() and
   // then increment bstate.round.
   //
+  static int reach_count = 0;
+  pthread_mutex_lock(&bstate.barrier_mutex);
+  reach_count++;
   
+  if(reach_count == nthread){
+    bstate.round++;
+    reach_count = 0;
+    pthread_cond_broadcast(&bstate.barrier_cond);
+  } else {
+    pthread_cond_wait(&bstate.barrier_cond, &bstate.barrier_mutex);
+  }
+  pthread_mutex_unlock(&bstate.barrier_mutex);
 }
 
 static void *
@@ -57,6 +68,8 @@ main(int argc, char *argv[])
   void *value;
   long i;
   double t1, t0;
+
+  pthread_mutex_init(&bstate.barrier_mutex, NULL);
 
   if (argc < 2) {
     fprintf(stderr, "%s: %s nthread\n", argv[0], argv[0]);
