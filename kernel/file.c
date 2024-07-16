@@ -12,6 +12,7 @@
 #include "file.h"
 #include "stat.h"
 #include "proc.h"
+#include "fcntl.h"
 
 struct devsw devsw[NDEV];
 struct {
@@ -180,3 +181,52 @@ filewrite(struct file *f, uint64 addr, int n)
   return ret;
 }
 
+uint64 mmap_handler(struct proc *p, uint64 va, int cause) {
+  int ID = -1;
+  for(int i = 0; i < NVMA; i++) {
+    if(p->vma[i].used && va >= p->vma[i].addr && va <= p->vma[i].addr + p->vma[i].length - 1) {
+      ID = i;
+      break;
+    }
+  }
+  if(ID == -1) {
+    return -1;
+  }
+
+  uint64* pa;
+  if((pa = (uint64*)kalloc()) == 0) {
+    return -1;
+  }
+  memset(pa, 0, PGSIZE);
+
+  struct file *f = p->vma[ID].file;
+  if(cause == 13 && f->readable == 0)
+    return -1;
+  if(cause == 15 && f->writable == 0)
+    return -1;
+
+  ilock(f->ip);
+  if(readi(f->ip, 0, (uint64)pa, p->vma[ID].offset + PGROUNDDOWN(va - p->vma[ID].addr), PGSIZE) == 0) {
+    iunlock(f->ip);
+    kfree(pa);
+    return -1;
+  }
+  iunlock(f->ip);
+
+  int flags = PTE_U;
+  if(p->vma[ID].prot & PROT_READ) {
+    flags |= PTE_R;
+  }
+  if(p->vma[ID].prot & PROT_WRITE) {
+    flags |= PTE_W;
+  }
+  if(p->vma[ID].prot & PROT_EXEC) {
+    flags |= PTE_X;
+  }
+
+  if(mappages(p->pagetable, PGROUNDDOWN(va), PGSIZE, (uint64)pa, flags) < 0) {
+    kfree(pa);
+    return -1;
+  }
+  return 0;
+}
